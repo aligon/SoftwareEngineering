@@ -1,0 +1,12 @@
+.grid{
+	position: static;
+}
+
+.cell{
+	border: 1px solid black;
+	position: absolute;
+}
+
+.cell.active{
+	background-color: blue;
+}
