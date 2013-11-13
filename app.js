@@ -25,7 +25,7 @@ app.configure('developement', function(){
 });
 
 app.get('*', function(req, res){
-	res.render('index');
+	res.redirect('/index.html');
 });
 
 server = http.createServer(app).listen(app.get('port'),function(){

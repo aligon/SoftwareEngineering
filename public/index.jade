@@ -1,0 +1,36 @@
+doctype 5
+html(lang='en')
+	head
+		link(rel='stylesheet', href='resources/jquery-ui-1.10.3.custom.min.css')
+		link(rel='stylesheet', href='resources/styles/main.css')
+
+		script(type='text/javascript', src='//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js')
+		script(type='text/javascript', src='javascript/jquery-ui-1.10.3.custom.min.js')
+		script(type='text/javascript', src='/socket.io/socket.io.js')
+
+		script(type='text/javascript', src='javascript/life.js')
+		script(type='text/javascript', src='javascript/application.js')
+
+	body
+		div.grid-container
+			div.grid
+		div.controls-container
+			div.handle
+			h2 Conway's Game of Life
+
+			div.tabs
+				ul
+					li 
+						a(href='#about-tag') About
+					li
+						a(href='#controls-tag') controls
+				div#about-tag
+					span About text
+				div#controls-tag
+					span Controls
+
+					div.start Start
+					div.clear Clear
+					div.stop Stop
+					div.prebuilt(data-name='test') test
+

@@ -1,6 +1,7 @@
 function lifeController(gridEl, width, height, size){
 	var me = this,
 		grid = gridEl,
+		genGrid,
 		checked = {},
 		cellSize = size || 15
 		size = {
@@ -38,7 +39,7 @@ function lifeController(gridEl, width, height, size){
 			for(j = 0; j < height; j++){
 				index = i * width + j;
 
-				grid.append(buildCellTmp(index, i * cellSize, j * cellSize));
+				genGrid.append(buildCellTmp(index, i * cellSize, j * cellSize));
 			}
 		}
 	}
@@ -74,10 +75,22 @@ function lifeController(gridEl, width, height, size){
 
 	//sizes the grid accordingly and calls buildCells
 	this.buildGrid = function(){
-		grid.width( size.width * cellSize );
-		grid.height(size.height * cellSize );
+		var me = this;
+
+		grid.append("<div class='gen-grid'></div>");
+		genGrid = $('.gen-grid');
+		genGrid.width( size.width * cellSize );
+		genGrid.height(size.height * cellSize );
 
 		buildCells(size.width, size.height);
+
+		$('.cell').bind('click', function(){
+			me.selectCell($(this));
+		});
+
+		$('.cell').bind('dblclick', function(){
+			me.toggleCell($(this));
+		});
 	};
 
 	this.setSize = function(width, height){
@@ -91,6 +104,7 @@ function lifeController(gridEl, width, height, size){
 
 	this.toggleCell = function(target){
 		if(runningFlag){ return; }
+
 		if(target.hasClass('active')){
 			delete checked[target.attr('data-index')];
 			target.removeClass('active');
@@ -98,6 +112,18 @@ function lifeController(gridEl, width, height, size){
 			checked[target.attr('data-index')] = true;
 			target.addClass('active');
 		}
+	};
+
+	this.selectCell = function(target){
+		if(target.hasClass('selected')){
+			target.removeClass('selected');
+			delete this.activeCell;
+		}else{
+			$('.selected').removeClass('selected');
+			this.activeCell = target.attr('data-index');
+			target.addClass('selected');
+		}
+		
 	};
 
 	this.clearGrid = function(override){
@@ -122,6 +148,71 @@ function lifeController(gridEl, width, height, size){
 			runningFlag = false;
 			socket.emit('stop-flag',{});
 		}
+	};
+
+	this.indexToCoor = function(n){
+		var result = [];
+
+		result[0] = Math.floor(n/size.width);
+		result[1] = n - (result[0] * size.width);
+
+		return result;
+	};
+
+	this.coorToIndex = function(i, j){
+		return j + size.width*i;
+	};	
+
+	/*
+		Adds a prebuilt of name with the structure of
+
+		{
+			width: 5,
+			height: 3,
+			cells: [
+				[0,0,0,1,0],
+				[0,0,0,0,0],
+				[0,0,0,0,1]
+			]s	
+		}
+
+	*/
+	this.addPrebuilt = function(prebuilt, cls){
+		if(!this.activeCell){
+			alert('No Active Cell');
+		}
+		var topCorner = this.indexToCoor(this.activeCell), 
+			i , j, cur, index;
+
+		if(topCorner[0] + prebuilt.width > size.width){
+			topCorner[0] = topCorner[0] - ((topCorner[0] + prebuilt.width) - size.width);
+		}
+
+		if(topCorner[1] + prebuilt.height > size.height){
+			topCorner[1] = topCorner[1] - ((topCorner[1] + prebuilt.height) - size.height);
+		}		
+
+		for(i = 0; i < prebuilt.height; i++){
+			for(j = 0; j < prebuilt.width; j++){
+				index = this.coorToIndex(topCorner[0] + i, topCorner[1] + j);
+				cur = $(".cell[data-index='" + index + "']")
+
+				if(prebuilt.cells[i][j] > 0){
+					checked[index] = true;
+					cur.addClass(cls);
+					console.log(checked);
+				}
+			}
+		}
+	};
+
+	this.insertPrebuilt = function(prebuilt){
+		debugger;
+		this.addPrebuilt(prebuilt, 'active');
+	};
+
+	this.previewPrebuilt = function(prebuilt){
+		this.addPrebuilt(prebuilt, 'preview');
 	};
 
 }
